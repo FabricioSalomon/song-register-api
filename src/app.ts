@@ -5,7 +5,7 @@ import express, { type Request, type Response } from 'express';
 import { knex } from './database';
 
 const app = express();
-const port = 3306;
+const port = 4001;
 
 const cors_options: CorsOptions = {
 	origin: `http://localhost:/${port}`

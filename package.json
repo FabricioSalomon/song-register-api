@@ -5,7 +5,8 @@
 	"main": "app.ts",
 	"scripts": {
 		"unit:test": "jest",
-		"dev": "tsx watch src/app.ts"
+		"dev": "tsx watch src/app.ts",
+		"dev:debug": "nodemon --exec \"node -r ts-node/register --inspect-brk\" src/app.ts"
 	},
 	"keywords": [],
 	"author": "Fabrício Salomon",
@@ -33,6 +34,8 @@
 		"express": "^4.19.2",
 		"jest": "^29.7.0",
 		"knex": "^2.4.2",
-		"sqlite3": "^5.1.4"
+		"nodemon": "^3.1.0",
+		"sqlite3": "^5.1.4",
+		"ts-node": "^10.9.2"
 	}
 }
