@@ -4,10 +4,9 @@
 	"description": "Song register API",
 	"main": "app.ts",
 	"scripts": {
-		"unit:test": "jest",
 		"prepare": "husky",
-		"dev": "tsx watch src/app.ts",
-		"dev:debug": "nodemon --exec \"node -r ts-node/register --inspect-brk\" src/app.ts"
+		"unit:test": "jest",
+		"dev": "nodemon --inspect=9229 -e ts,tsx --exec node -r ts-node/register src/app.ts"
 	},
 	"keywords": [],
 	"author": "Fabrício Salomon",

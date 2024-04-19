@@ -2,12 +2,13 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Attach to Process",
 			"type": "node",
-			"request": "launch",
-			"name": "Attach to node",
-			"skipFiles": ["<node_internals>/**"],
-      "preLaunchTask": "tsc: build - tsconfig.json",
-			"program": "${workspaceFolder}/build/app.js"
+			"request": "attach",
+			"restart": true,
+			"port": 9229,
+			"outFiles": [],
+			"sourceMaps": true
 		}
 	]
 }
