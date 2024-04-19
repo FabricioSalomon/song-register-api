@@ -16,3 +16,16 @@ yarn
 yarn dev
 ```
 
+#### SETUP CONFIG
+
+- Server manager
+	> [Express](https://expressjs.com/pt-br/)
+
+- Query builder
+	> [Knex](https://knexjs.org/guide/#migrations)
+
+- DB
+	> [SQLite](https://www.sqlite.org/)
+
+- Tests
+	> [Jest](https://jestjs.io/pt-BR/)
