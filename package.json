@@ -6,6 +6,7 @@
 	"scripts": {
 		"prepare": "husky",
 		"unit:test": "jest",
+		"migration": "npx knex migrate:latest",
 		"clear:modules": "rm -rf node_modules && yarn",
 		"dev": "nodemon --inspect=9229 -e ts,tsx --exec node -r ts-node/register src/app.ts",
 		"dev:clear": "yarn clear:modules && nodemon --inspect=9229 -e ts,tsx --exec node -r ts-node/register src/app.ts"
