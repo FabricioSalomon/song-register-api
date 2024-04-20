@@ -6,7 +6,9 @@
 	"scripts": {
 		"prepare": "husky",
 		"unit:test": "jest",
-		"dev": "nodemon --inspect=9229 -e ts,tsx --exec node -r ts-node/register src/app.ts"
+		"clear:modules": "rm -rf node_modules && yarn",
+		"dev": "nodemon --inspect=9229 -e ts,tsx --exec node -r ts-node/register src/app.ts",
+		"dev:clear": "yarn clear:modules && nodemon --inspect=9229 -e ts,tsx --exec node -r ts-node/register src/app.ts"
 	},
 	"keywords": [],
 	"author": "Fabrício Salomon",
@@ -35,10 +37,14 @@
 		"eslint-plugin-n": "^17.2.1",
 		"eslint-plugin-promise": "^6.1.1",
 		"express": "^4.19.2",
+		"express-validator": "^7.0.1",
 		"jest": "^29.7.0",
 		"knex": "^2.4.2",
 		"nodemon": "^3.1.0",
 		"sqlite3": "^5.1.4",
 		"ts-node": "^10.9.2"
+	},
+	"imports": {
+		"#src/*": "./src/*.ts"
 	}
 }
