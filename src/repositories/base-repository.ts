@@ -1,9 +1,56 @@
+import { Knex } from 'knex';
+
+export type Options = {
+	soft_deleted?: boolean;
+};
+
+export type APIError = {
+	code: number;
+	error: boolean;
+	message: string;
+};
+
 export interface IBaseRepository {
-	findOne(): void;
+	destroy<Result>(id: string): Promise<Result>;
+	create<T, Result>(params: T): Promise<Result>;
+	update<T, Result>(params: T): Promise<Result>;
+	findAll<T, Result>(filters?: T): Promise<Result[]>;
+	findByPK<Result>(id: string, options?: Options): Promise<Result>;
 }
 
 export abstract class BaseRepository implements IBaseRepository {
-	findOne(): void {
+	public tableName?: string;
+
+	constructor(public db: Knex) {}
+
+	public get table() {
+		if (!this.tableName) {
+			throw new Error('The table name must be defined for the repository.');
+		}
+		return this.db(this.tableName);
+	}
+
+	async findByPK<Result>(id: string, options: Options): Promise<Result> {
+		if (options?.soft_deleted) {
+			return this.table.where('id', id).whereNotNull('deleted_at').select('*').first();
+		}
+		return this.table.where('id', id).where('deleted_at', null).select('*').first();
+	}
+
+	async create<T, Result>(params: T): Promise<Result> {
+		const [created]: Result[] = await this.table.insert(params).returning('*');
+		return created;
+	}
+
+	async update<T, Result>(params: T): Promise<Result> {
 		throw new Error('Method not implemented.');
+	}
+
+	async destroy<T, Result>(id: string): Promise<Result> {
+		throw new Error('Method not implemented.');
+	}
+
+	async findAll<T, Result>(filters?: T): Promise<Result[]> {
+		return this.table.where('deleted_at', null).select('*');
 	}
 }
