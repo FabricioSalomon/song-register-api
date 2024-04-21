@@ -7,7 +7,7 @@
   "collectCoverageFrom": ["src/**"],
   "coverageDirectory": "__tests__/coverage",
   "testEnvironment": "node",
-  "testMatch": ["**/__tests__/**/*.test.js?(x)"],
+  "testMatch": ["**/__tests__/**/*.test.ts?(x)"],
   "preset": "ts-jest",
   "transform": {
     "^.+\\.(ts|tsx)?$": "ts-jest",
