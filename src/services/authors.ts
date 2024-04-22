@@ -10,29 +10,27 @@ export type UpdateAuthor = {
 export type AuthorResponse = Author & {
 	songs_registered: number;
 };
-export type Repositories = {
+export type AuthorsRepositories = {
 	author: IAuthorRepository;
 };
-export type FindAllParams = {
+export type AuthorFindAllParams = {
 	name: string;
 };
 
 export interface IAuthorService {
 	create(name: string): Promise<Author>;
 	delete(id: string): Promise<Author | APIError>;
-	list(filters: FindAllParams): Promise<Author[]>;
+	list(filters: AuthorFindAllParams): Promise<Author[]>;
 	update(name: string, id: string): Promise<Author | APIError>;
 }
 
 export class AuthorService implements IAuthorService {
-	constructor(private repositories: Repositories) {}
+	constructor(private repositories: AuthorsRepositories) {}
 
-	async list(filters: FindAllParams): Promise<AuthorResponse[]> {
+	async list(filters: AuthorFindAllParams): Promise<AuthorResponse[]> {
 		const authors = await this.repositories.author.listAll(filters);
 
-		const mapped_authors: AuthorResponse[] = authors.map((author) => ({ ...author, songs_registered: 0 }));
-
-		return mapped_authors;
+		return authors;
 	}
 
 	async create(name: string): Promise<Author> {

@@ -1,14 +1,14 @@
 import { Knex } from 'knex';
 import { BaseRepository, Options, type IBaseRepository } from './base-repository';
 
-import { Author } from '../models';
-import { CreateAuthor, FindAllParams, UpdateAuthor } from '../services';
+import { Author, Song } from '../models';
+import { AuthorResponse, CreateAuthor, KeywordFindAllParams, UpdateAuthor } from '../services';
 
 export interface IAuthorRepository extends IBaseRepository {
 	deleteAuthor(id: string): Promise<Author>;
-	listAll(filters?: FindAllParams): Promise<Author[]>;
 	createAuthor(params?: CreateAuthor): Promise<Author>;
 	updateAuthor(params?: UpdateAuthor): Promise<Author>;
+	listAll(filters?: KeywordFindAllParams): Promise<AuthorResponse[]>;
 }
 
 export class AuthorRepository extends BaseRepository implements IAuthorRepository {
@@ -17,18 +17,41 @@ export class AuthorRepository extends BaseRepository implements IAuthorRepositor
 		super(db);
 	}
 
-	async listAll(filters?: FindAllParams): Promise<Author[]> {
-		return await this.table
-			// .innerJoin('songs', 'authors.id', '=', 'songs.author_id')
+	async listAll(filters?: KeywordFindAllParams): Promise<AuthorResponse[]> {
+		const authors: Author[] = await this.table
 			.where((builder) => {
-				builder.where('deleted_at', null);
+				builder.where('authors.deleted_at', null);
 
 				if (filters?.name) {
-					builder.whereLike('name', `%${filters.name}%`);
+					builder.whereLike('authors.name', `%${filters.name}%`);
 				}
 			})
-			.select('*')
 			.orderBy('created_at', 'desc');
+
+		const authors_ids = authors?.map(({ id }) => id);
+		const songs_registered: Song[] = await this.db('songs')
+			.where('songs.deleted_at', null)
+			.whereIn('author_id', authors_ids)
+			.orderBy('created_at', 'desc');
+
+		const songs_by_author = songs_registered?.reduce((songs_by_author, current_song) => {
+			const current = songs_by_author[current_song.author_id] ?? [];
+			const copy = [...current];
+			copy.push(current_song);
+			return {
+				...songs_by_author,
+				[current_song.author_id]: copy
+			};
+		}, {} as { [key: string]: Song[] });
+
+		const mapped_authors = authors.map((author) => {
+			return {
+				...author,
+				songs_registered: songs_by_author[author.id]?.length ?? 0
+			};
+		});
+
+		return mapped_authors;
 	}
 
 	async createAuthor(params: CreateAuthor): Promise<Author> {

@@ -1,24 +1,38 @@
 import { Request, Response } from 'express';
 
-import { IAuthorService } from '../services';
+import { IKeywordService } from '../services';
 import { APIError } from '../repositories/base-repository';
 
-export interface IAuthorController {
+export interface IKeywordController {
 	list(req: Request, res: Response): Promise<void>;
 	create(req: Request, res: Response): Promise<void>;
 }
 
-export class AuthorController implements IAuthorController {
-	constructor(private service: IAuthorService) {}
+export class KeywordController implements IKeywordController {
+	constructor(private service: IKeywordService) {}
 
 	list = async (req: Request, res: Response) => {
 		try {
 			const filters = {
 				name: req.query?.name as string
 			};
-			const author = await this.service.list(filters);
+			const keyword = await this.service.list(filters);
 
-			res.status(200).json(author);
+			res.status(200).json(keyword);
+		} catch (error) {
+			console.error(error);
+			res.status(500).json({
+				message: 'Internal server error'
+			});
+		}
+	};
+
+	listBySong = async (req: Request, res: Response) => {
+		try {
+			const song_id = req.query?.song_id as string;
+			const keyword = await this.service.listBySong(song_id);
+
+			res.status(200).json(keyword);
 		} catch (error) {
 			console.error(error);
 			res.status(500).json({
@@ -29,9 +43,9 @@ export class AuthorController implements IAuthorController {
 
 	create = async (req: Request, res: Response) => {
 		try {
-			const author = await this.service.create(req.body.name);
+			const keyword = await this.service.create(req.body.name);
 
-			res.status(200).json(author);
+			res.status(200).json(keyword);
 		} catch (error) {
 			console.error(error);
 			res.status(500).json({
@@ -43,15 +57,15 @@ export class AuthorController implements IAuthorController {
 	update = async (req: Request, res: Response) => {
 		try {
 			const { id, name } = req.body;
-			const author = await this.service.update(name, id);
+			const keyword = await this.service.update(name, id);
 
-			if (this.hasError(author)) {
-				return res.status(author.code).json({
-					message: author.message
+			if (this.hasError(keyword)) {
+				return res.status(keyword.code).json({
+					message: keyword.message
 				});
 			}
 
-			res.status(200).json(author);
+			res.status(200).json(keyword);
 		} catch (error) {
 			console.error(error);
 			res.status(500).json({
@@ -63,15 +77,15 @@ export class AuthorController implements IAuthorController {
 	delete = async (req: Request, res: Response) => {
 		try {
 			const { id } = req.query;
-			const author = await this.service.delete(String(id));
+			const keyword = await this.service.delete(String(id));
 
-			if (this.hasError(author)) {
-				return res.status(author.code).json({
-					message: author.message
+			if (this.hasError(keyword)) {
+				return res.status(keyword.code).json({
+					message: keyword.message
 				});
 			}
 
-			res.status(200).json(author);
+			res.status(200).json(keyword);
 		} catch (error) {
 			console.error(error);
 			res.status(500).json({

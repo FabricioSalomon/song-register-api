@@ -1,24 +1,28 @@
 import { Request, Response } from 'express';
 
-import { IAuthorService } from '../services';
+import { ISongService } from '../services';
 import { APIError } from '../repositories/base-repository';
 
-export interface IAuthorController {
+export interface ISongController {
 	list(req: Request, res: Response): Promise<void>;
 	create(req: Request, res: Response): Promise<void>;
 }
 
-export class AuthorController implements IAuthorController {
-	constructor(private service: IAuthorService) {}
+export class SongController implements ISongController {
+	constructor(private service: ISongService) {}
 
 	list = async (req: Request, res: Response) => {
 		try {
 			const filters = {
-				name: req.query?.name as string
+				name: req.query?.name as string,
+				keyword: req.query?.keyword as string,
+				author_id: req.query?.author_id as string,
+				released_at_end: req.query?.released_at_end as string,
+				released_at_start: req.query?.released_at_start as string
 			};
-			const author = await this.service.list(filters);
+			const song = await this.service.list(filters);
 
-			res.status(200).json(author);
+			res.status(200).json(song);
 		} catch (error) {
 			console.error(error);
 			res.status(500).json({
@@ -29,9 +33,9 @@ export class AuthorController implements IAuthorController {
 
 	create = async (req: Request, res: Response) => {
 		try {
-			const author = await this.service.create(req.body.name);
+			const song = await this.service.create(req.body);
 
-			res.status(200).json(author);
+			res.status(200).json(song);
 		} catch (error) {
 			console.error(error);
 			res.status(500).json({
@@ -43,15 +47,15 @@ export class AuthorController implements IAuthorController {
 	update = async (req: Request, res: Response) => {
 		try {
 			const { id, name } = req.body;
-			const author = await this.service.update(name, id);
+			const song = await this.service.update(name, id);
 
-			if (this.hasError(author)) {
-				return res.status(author.code).json({
-					message: author.message
+			if (this.hasError(song)) {
+				return res.status(song.code).json({
+					message: song.message
 				});
 			}
 
-			res.status(200).json(author);
+			res.status(200).json(song);
 		} catch (error) {
 			console.error(error);
 			res.status(500).json({
@@ -63,15 +67,15 @@ export class AuthorController implements IAuthorController {
 	delete = async (req: Request, res: Response) => {
 		try {
 			const { id } = req.query;
-			const author = await this.service.delete(String(id));
+			const song = await this.service.delete(String(id));
 
-			if (this.hasError(author)) {
-				return res.status(author.code).json({
-					message: author.message
+			if (this.hasError(song)) {
+				return res.status(song.code).json({
+					message: song.message
 				});
 			}
 
-			res.status(200).json(author);
+			res.status(200).json(song);
 		} catch (error) {
 			console.error(error);
 			res.status(500).json({
