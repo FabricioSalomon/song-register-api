@@ -1,10 +1,11 @@
 import { Knex } from 'knex';
-import { BaseRepository, type IBaseRepository } from './base-repository';
+import { BaseRepository, Options, type IBaseRepository } from './base-repository';
 
 import { Author } from '../models';
 import { CreateAuthor, FindAllParams, UpdateAuthor } from '../services';
 
 export interface IAuthorRepository extends IBaseRepository {
+	deleteAuthor(id: string): Promise<Author>;
 	listAll(filters?: FindAllParams): Promise<Author[]>;
 	createAuthor(params?: CreateAuthor): Promise<Author>;
 	updateAuthor(params?: UpdateAuthor): Promise<Author>;
@@ -18,6 +19,7 @@ export class AuthorRepository extends BaseRepository implements IAuthorRepositor
 
 	async listAll(filters?: FindAllParams): Promise<Author[]> {
 		return await this.table
+			// .innerJoin('songs', 'authors.id', '=', 'songs.author_id')
 			.where((builder) => {
 				builder.where('deleted_at', null);
 
@@ -30,12 +32,32 @@ export class AuthorRepository extends BaseRepository implements IAuthorRepositor
 	}
 
 	async createAuthor(params: CreateAuthor): Promise<Author> {
-		const [created]: Author[] = await this.create(params);
+		const created: Author = await this.create(params);
 		return created;
 	}
 
 	async updateAuthor(params: UpdateAuthor): Promise<Author> {
-		const [udpated]: Author[] = await this.update(params.id, params);
+		const udpated: Author = await this.update(params.id, params);
 		return udpated;
+	}
+
+	async deleteAuthor(id: string): Promise<Author> {
+		const deleted: Author = await this.destroy(id);
+		return deleted;
+	}
+
+	async findOne<Result>(params: Options): Promise<Result> {
+		const [author] = await this.table
+			.where((builder) => {
+				builder.where('deleted_at', null);
+
+				if (params?.name) {
+					builder.where('name', params.name);
+				}
+			})
+			.select('*')
+			.orderBy('created_at', 'desc');
+
+		return author;
 	}
 }

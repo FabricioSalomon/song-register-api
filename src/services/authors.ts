@@ -1,5 +1,6 @@
 import { Author } from '../models';
 import { IAuthorRepository } from '../repositories';
+import { APIError } from '../repositories/base-repository';
 
 export type CreateAuthor = Pick<Author, 'name'>;
 export type UpdateAuthor = {
@@ -17,10 +18,10 @@ export type FindAllParams = {
 };
 
 export interface IAuthorService {
-	delete(id: string): Promise<Author>;
 	create(name: string): Promise<Author>;
+	delete(id: string): Promise<Author | APIError>;
 	list(filters: FindAllParams): Promise<Author[]>;
-	update(name: string, id: string): Promise<Author>;
+	update(name: string, id: string): Promise<Author | APIError>;
 }
 
 export class AuthorService implements IAuthorService {
@@ -42,7 +43,17 @@ export class AuthorService implements IAuthorService {
 		return created;
 	}
 
-	async update(name: string, id: string): Promise<Author> {
+	async update(name: string, id: string): Promise<Author | APIError> {
+		const author = await this.repositories.author.findByPK(id);
+		if (!author) {
+			const error: APIError = {
+				code: 409,
+				error: true,
+				message: 'Author not found'
+			};
+			return error;
+		}
+
 		const updated = await this.repositories.author.updateAuthor({
 			id,
 			name
@@ -51,8 +62,17 @@ export class AuthorService implements IAuthorService {
 		return updated;
 	}
 
-	async delete(id: string): Promise<Author> {
-		const deleted = await this.repositories.author.destroy<Author>(id);
+	async delete(id: string): Promise<Author | APIError> {
+		const author = await this.repositories.author.findByPK(id);
+		if (!author) {
+			const error: APIError = {
+				code: 409,
+				error: true,
+				message: 'Author not found'
+			};
+			return error;
+		}
+		const deleted = await this.repositories.author.deleteAuthor(id);
 		return deleted;
 	}
 }
