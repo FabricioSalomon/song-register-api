@@ -6,7 +6,12 @@ import { AuthorFactory } from '../../factories';
 const router = Router();
 const { middleware, controller } = AuthorFactory.createInstance(db);
 
-router.get('/list', controller.list);
-router.get('/create', controller.create);
+router.get('/list', middleware.list, controller.list);
+
+router.post('/', middleware.create, controller.create);
+
+router.put('/', middleware.update, controller.update);
+
+router.delete('/', middleware.delete, controller.delete);
 
 export { router as authorsRouter };

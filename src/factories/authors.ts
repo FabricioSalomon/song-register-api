@@ -9,7 +9,7 @@ export class AuthorFactory {
 	static createInstance(db: Knex) {
 		const middleware = new AuthorMiddleware();
 		const repository = new AuthorRepository(db);
-		const service = new AuthorService(repository);
+		const service = new AuthorService({ author: repository });
 		const controller = new AuthorController(service);
 		return { middleware, controller };
 	}

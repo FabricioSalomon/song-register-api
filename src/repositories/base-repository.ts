@@ -13,8 +13,8 @@ export type APIError = {
 export interface IBaseRepository {
 	destroy<Result>(id: string): Promise<Result>;
 	create<T, Result>(params: T): Promise<Result>;
-	update<T, Result>(params: T): Promise<Result>;
 	findAll<T, Result>(filters?: T): Promise<Result[]>;
+	update<T, Result>(id: string, params: T): Promise<Result>;
 	findByPK<Result>(id: string, options?: Options): Promise<Result>;
 }
 
@@ -42,12 +42,19 @@ export abstract class BaseRepository implements IBaseRepository {
 		return created;
 	}
 
-	async update<T, Result>(params: T): Promise<Result> {
-		throw new Error('Method not implemented.');
+	async update<T, Result>(id: string, params: T): Promise<Result> {
+		const [updated]: Result[] = await this.table.where('id', id).update(params).returning('*');
+		return updated;
 	}
 
 	async destroy<T, Result>(id: string): Promise<Result> {
-		throw new Error('Method not implemented.');
+		const [updated]: Result[] = await this.table
+			.where('id', id)
+			.update({
+				deleted_at: new Date()
+			})
+			.returning('*');
+		return updated;
 	}
 
 	async findAll<T, Result>(filters?: T): Promise<Result[]> {
