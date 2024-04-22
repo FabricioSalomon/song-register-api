@@ -6,7 +6,7 @@ import { router } from './routes';
 
 const port = 4001;
 const cors_options: CorsOptions = {
-	origin: `http://localhost:/${port}`
+	origin: `http://localhost:3000`
 };
 
 const app = express();
