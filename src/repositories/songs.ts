@@ -12,15 +12,18 @@ export interface ISongRepository extends IBaseRepository {
 }
 
 export class SongRepository extends BaseRepository implements ISongRepository {
-	public tableName = 'Songs';
+	public tableName = 'songs';
 	constructor(public db: Knex) {
 		super(db);
 	}
 
 	async listAll(filters?: SongFindAllParams): Promise<Song[]> {
 		return await this.table
+			.innerJoin('authors', 'authors.id', 'songs.author_id')
+			.select('songs.*')
 			.where((builder) => {
 				builder.where('songs.deleted_at', null);
+				builder.where('authors.deleted_at', null);
 
 				if (filters?.name) {
 					builder.whereLike('songs.name', `%${filters.name}%`);
@@ -47,7 +50,7 @@ export class SongRepository extends BaseRepository implements ISongRepository {
 						);
 				}
 			})
-			.orderBy('created_at', 'desc');
+			.orderBy('songs.created_at', 'desc');
 	}
 
 	async createSong(params: CreateSong): Promise<Song> {
