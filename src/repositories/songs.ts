@@ -1,14 +1,14 @@
 import { Knex } from 'knex';
-import { BaseRepository, Options, type IBaseRepository } from './base-repository';
 
 import { Song } from '../models';
-import { CreateSong, SongFindAllParams, UpdateSong } from '../services';
+import { BaseRepository, Options, type IBaseRepository } from './base-repository';
+import { CreateSong, SongFindAllParams, SongResponse, UpdateSong } from '../services';
 
 export interface ISongRepository extends IBaseRepository {
 	deleteSong(id: string): Promise<Song>;
-	listAll(filters?: SongFindAllParams): Promise<Song[]>;
 	createSong(params?: CreateSong): Promise<Song>;
 	updateSong(params?: UpdateSong): Promise<Song>;
+	listAll(filters?: SongFindAllParams): Promise<SongResponse[]>;
 }
 
 export class SongRepository extends BaseRepository implements ISongRepository {
@@ -17,10 +17,10 @@ export class SongRepository extends BaseRepository implements ISongRepository {
 		super(db);
 	}
 
-	async listAll(filters?: SongFindAllParams): Promise<Song[]> {
+	async listAll(filters?: SongFindAllParams): Promise<SongResponse[]> {
 		return await this.table
 			.innerJoin('authors', 'authors.id', 'songs.author_id')
-			.select('songs.*')
+			.select('songs.*', 'authors.name as author')
 			.where((builder) => {
 				builder.where('songs.deleted_at', null);
 				builder.where('authors.deleted_at', null);
@@ -47,6 +47,7 @@ export class SongRepository extends BaseRepository implements ISongRepository {
 								.innerJoin('keywords', 'keywords.id', 'songs-keywords.keyword_id')
 								.select('keywords.name')
 								.whereLike('keywords.name', `%${filters.name}%`)
+								.where('keywords.deleted_at', null)
 						);
 				}
 			})

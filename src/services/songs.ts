@@ -12,7 +12,9 @@ export type UpdateSong = {
 	id: string;
 	name: string;
 };
-export type SongResponse = Song;
+export type SongResponse = Song & {
+	author: string;
+};
 export type SongsRepositories = {
 	song: ISongRepository;
 	songs_keywords: ISongKeywordRepository;
