@@ -31,6 +31,13 @@ export class AuthorController implements IAuthorController {
 		try {
 			const author = await this.service.create(req.body.name);
 
+			if (this.hasError(author)) {
+				res.status(author.code).json({
+					message: author.message
+				});
+				return;
+			}
+
 			res.status(200).json(author);
 		} catch (error) {
 			console.error(error);

@@ -6,6 +6,9 @@ import { APIError } from '../repositories/base-repository';
 export interface IKeywordController {
 	list(req: Request, res: Response): Promise<void>;
 	create(req: Request, res: Response): Promise<void>;
+	update(req: Request, res: Response): Promise<void>;
+	delete(req: Request, res: Response): Promise<void>;
+	listBySong(req: Request, res: Response): Promise<void>;
 }
 
 export class KeywordController implements IKeywordController {
@@ -44,7 +47,12 @@ export class KeywordController implements IKeywordController {
 	create = async (req: Request, res: Response) => {
 		try {
 			const keyword = await this.service.create(req.body.name);
-
+			if (this.hasError(keyword)) {
+				res.status(keyword.code).json({
+					message: keyword.message
+				});
+				return;
+			}
 			res.status(200).json(keyword);
 		} catch (error) {
 			console.error(error);
@@ -60,9 +68,10 @@ export class KeywordController implements IKeywordController {
 			const keyword = await this.service.update(name, id);
 
 			if (this.hasError(keyword)) {
-				return res.status(keyword.code).json({
+				res.status(keyword.code).json({
 					message: keyword.message
 				});
+				return;
 			}
 
 			res.status(200).json(keyword);
@@ -80,9 +89,10 @@ export class KeywordController implements IKeywordController {
 			const keyword = await this.service.delete(String(id));
 
 			if (this.hasError(keyword)) {
-				return res.status(keyword.code).json({
+				res.status(keyword.code).json({
 					message: keyword.message
 				});
+				return;
 			}
 
 			res.status(200).json(keyword);

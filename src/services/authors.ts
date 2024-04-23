@@ -18,8 +18,8 @@ export type AuthorFindAllParams = {
 };
 
 export interface IAuthorService {
-	create(name: string): Promise<Author>;
 	delete(id: string): Promise<Author | APIError>;
+	create(name: string): Promise<Author | APIError>;
 	list(filters: AuthorFindAllParams): Promise<Author[]>;
 	update(name: string, id: string): Promise<Author | APIError>;
 }
@@ -33,7 +33,15 @@ export class AuthorService implements IAuthorService {
 		return authors;
 	}
 
-	async create(name: string): Promise<Author> {
+	async create(name: string): Promise<Author | APIError> {
+		const existing_author = await this.repositories.author.findOne({ name });
+		if (existing_author) {
+			return {
+				code: 409,
+				error: true,
+				message: 'Already created author!'
+			};
+		}
 		const created = await this.repositories.author.create<CreateAuthor, Author>({
 			name
 		});

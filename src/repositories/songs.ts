@@ -1,4 +1,5 @@
 import { Knex } from 'knex';
+import moment from 'moment';
 
 import { Song } from '../models';
 import { BaseRepository, Options, type IBaseRepository } from './base-repository';
@@ -9,6 +10,7 @@ export interface ISongRepository extends IBaseRepository {
 	createSong(params?: CreateSong): Promise<Song>;
 	updateSong(params?: UpdateSong): Promise<Song>;
 	listAll(filters?: SongFindAllParams): Promise<SongResponse[]>;
+	findAllByNameAndAuthor(params?: Options): Promise<SongResponse[]>;
 }
 
 export class SongRepository extends BaseRepository implements ISongRepository {
@@ -20,10 +22,13 @@ export class SongRepository extends BaseRepository implements ISongRepository {
 	async listAll(filters?: SongFindAllParams): Promise<SongResponse[]> {
 		return await this.table
 			.innerJoin('authors', 'authors.id', 'songs.author_id')
+			.innerJoin('songs-keywords', 'songs.id', 'songs-keywords.song_id')
+			.innerJoin('keywords', 'keywords.id', 'songs-keywords.keyword_id')
 			.select('songs.*', 'authors.name as author')
 			.where((builder) => {
 				builder.where('songs.deleted_at', null);
 				builder.where('authors.deleted_at', null);
+				builder.where('keywords.deleted_at', null);
 
 				if (filters?.name) {
 					builder.whereLike('songs.name', `%${filters.name}%`);
@@ -34,23 +39,19 @@ export class SongRepository extends BaseRepository implements ISongRepository {
 				}
 
 				if (filters?.released_at_start && filters?.released_at_end) {
-					builder.where('songs.created_at', '>=', filters.released_at_start);
-					builder.where('songs.created_at', '<=', filters.released_at_end);
+					builder.where(
+						'songs.released_at',
+						'>=',
+						moment(new Date(filters.released_at_start)).utc().format()
+					);
+					builder.where('songs.released_at', '<=', moment(new Date(filters.released_at_end)).utc().format());
 				}
 
 				if (filters?.keyword) {
-					builder
-						.innerJoin('songs-keywords', 'songs.id', 'songs-keywords.song_id')
-						.select(
-							'songs.*',
-							this.db('songs-keywords')
-								.innerJoin('keywords', 'keywords.id', 'songs-keywords.keyword_id')
-								.select('keywords.name')
-								.whereLike('keywords.name', `%${filters.name}%`)
-								.where('keywords.deleted_at', null)
-						);
+					builder.whereLike('keywords.name', `%${filters.keyword}%`);
 				}
 			})
+			.groupBy('songs.id')
 			.orderBy('songs.created_at', 'desc');
 	}
 
@@ -77,10 +78,30 @@ export class SongRepository extends BaseRepository implements ISongRepository {
 				if (params?.name) {
 					builder.where('name', params.name);
 				}
+
+				if (params?.author_id) {
+					builder.where('author_id', params.author_id);
+				}
 			})
 			.select('*')
 			.orderBy('created_at', 'desc');
 
 		return song;
+	}
+
+	async findAllByNameAndAuthor<Result>(params: Options): Promise<Result[]> {
+		return await this.table
+			.where((builder) => {
+				builder.where('deleted_at', null);
+
+				if (params?.name) {
+					builder.where('name', params.name);
+				}
+
+				if (params?.author_id) {
+					builder.where('author_id', params.author_id);
+				}
+			})
+			.select('*');
 	}
 }

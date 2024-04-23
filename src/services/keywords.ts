@@ -17,7 +17,7 @@ export type KeywordFindAllParams = {
 };
 
 export interface IKeywordService {
-	create(name: string): Promise<Keyword>;
+	create(name: string): Promise<Keyword | APIError>;
 	listBySong(song_id: string): Promise<Keyword[]>;
 	delete(id: string): Promise<Keyword | APIError>;
 	list(filters: KeywordFindAllParams): Promise<Keyword[]>;
@@ -42,7 +42,15 @@ export class KeywordService implements IKeywordService {
 		return keywords;
 	}
 
-	async create(name: string): Promise<Keyword> {
+	async create(name: string): Promise<Keyword | APIError> {
+		const existing_keyword = await this.repositories.keyword.findOne({ name });
+		if (existing_keyword) {
+			return {
+				code: 409,
+				error: true,
+				message: 'Already created keyword!'
+			};
+		}
 		const created = await this.repositories.keyword.create<CreateKeyword, Keyword>({
 			name
 		});

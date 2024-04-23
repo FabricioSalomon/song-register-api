@@ -6,6 +6,8 @@ import { APIError } from '../repositories/base-repository';
 export interface ISongController {
 	list(req: Request, res: Response): Promise<void>;
 	create(req: Request, res: Response): Promise<void>;
+	update(req: Request, res: Response): Promise<void>;
+	delete(req: Request, res: Response): Promise<void>;
 }
 
 export class SongController implements ISongController {
@@ -35,6 +37,13 @@ export class SongController implements ISongController {
 		try {
 			const song = await this.service.create(req.body);
 
+			if (this.hasError(song)) {
+				res.status(song.code).json({
+					message: song.message
+				});
+				return;
+			}
+
 			res.status(200).json(song);
 		} catch (error) {
 			console.error(error);
@@ -46,13 +55,13 @@ export class SongController implements ISongController {
 
 	update = async (req: Request, res: Response) => {
 		try {
-			const { id, name } = req.body;
-			const song = await this.service.update(name, id);
+			const song = await this.service.update(req.body, req.body.id);
 
 			if (this.hasError(song)) {
-				return res.status(song.code).json({
+				res.status(song.code).json({
 					message: song.message
 				});
+				return;
 			}
 
 			res.status(200).json(song);
@@ -70,9 +79,10 @@ export class SongController implements ISongController {
 			const song = await this.service.delete(String(id));
 
 			if (this.hasError(song)) {
-				return res.status(song.code).json({
+				res.status(song.code).json({
 					message: song.message
 				});
+				return;
 			}
 
 			res.status(200).json(song);

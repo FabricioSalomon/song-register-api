@@ -82,16 +82,13 @@ export class SongMiddleware extends BaseMiddleware {
 	};
 
 	private generateUpdateValidator = (): ValidationChain[] => {
-		const name_validator = this.validateExistingProperty({
-			property: 'name',
-			customMessage: 'Property `name` cannot be empty'
-		});
-		const id_validator = this.validateExistingProperty({
-			property: 'id',
-			customMessage: 'Property `id` cannot be empty'
-		});
+		const id_validator = check('id').trim();
+		const name_validator = check('name').trim();
+		const author_id_validator = check('author_id').trim();
+		const released_at_validator = check('released_at').trim();
+		const keywords_ids_validator = check('keywords_ids').trim();
 
-		return [name_validator, id_validator];
+		return [name_validator, author_id_validator, id_validator, released_at_validator, keywords_ids_validator];
 	};
 
 	private generateDeleteValidator = (): ValidationChain[] => {
