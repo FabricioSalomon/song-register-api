@@ -1,34 +1,16 @@
 import { Song } from '../models';
-import { APIError } from '../repositories/base-repository';
-import { ISongKeywordRepository, ISongRepository } from '../repositories';
-
-export type CreateSong = {
-	name: string;
-	author_id: string;
-	released_at: string;
-	keywords_ids?: string[];
-};
-export type UpdateSong = CreateSong & {
-	id: string;
-};
-export type SongResponse = Song & {
-	author: string;
-};
-export type SongsRepositories = {
-	song: ISongRepository;
-	songs_keywords: ISongKeywordRepository;
-};
-export type SongFindAllParams = {
-	name?: string;
-	keyword: string;
-	author_id: string;
-	released_at_end: string;
-	released_at_start: string;
-};
+import {
+	APIError,
+	CreateSong,
+	SongListAllParams,
+	SongResponse,
+	SongsRepositories,
+	UpdateSong
+} from '../repositories/types';
 
 export interface ISongService {
 	delete(id: string): Promise<Song | APIError>;
-	list(filters: SongFindAllParams): Promise<Song[]>;
+	list(filters: SongListAllParams): Promise<Song[]>;
 	create(params: CreateSong): Promise<Song | APIError>;
 	update(params: UpdateSong, id: string): Promise<Song | APIError>;
 }
@@ -36,7 +18,7 @@ export interface ISongService {
 export class SongService implements ISongService {
 	constructor(private repositories: SongsRepositories) {}
 
-	async list(filters: SongFindAllParams): Promise<SongResponse[]> {
+	async list(filters: SongListAllParams): Promise<SongResponse[]> {
 		const songs = await this.repositories.song.listAll(filters);
 
 		return songs;
