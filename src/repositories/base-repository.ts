@@ -2,6 +2,7 @@ import { Knex } from 'knex';
 
 export type Options = {
 	name?: string;
+	author_id?: string;
 	soft_deleted?: boolean;
 };
 
@@ -40,7 +41,7 @@ export abstract class BaseRepository implements IBaseRepository {
 	}
 
 	findOne<Result>(options?: Options | undefined): Promise<Result> {
-		throw new Error('Method not implemented.');
+		return this.table.where('name', options?.name).where('deleted_at', null).select('*').first();
 	}
 
 	async create<T, Result>(params: T): Promise<Result> {

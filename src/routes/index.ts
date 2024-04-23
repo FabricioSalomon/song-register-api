@@ -10,6 +10,8 @@ router.get('/health-check', (req: Request, res: Response) => {
 	});
 });
 
+router.use('/songs', routes.songsRouter);
 router.use('/authors', routes.authorsRouter);
+router.use('/keywords', routes.keywordsRouter);
 
 export { router };
