@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
 import { IKeywordService } from '../services';
-import { APIError } from '../repositories/base-repository';
+import { APIError } from '../repositories/types';
 
 export interface IKeywordController {
 	list(req: Request, res: Response): Promise<void>;

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
 import { IAuthorService } from '../services';
-import { APIError } from '../repositories/base-repository';
+import { APIError } from '../repositories/types';
 
 export interface IAuthorController {
 	list(req: Request, res: Response): Promise<void>;
