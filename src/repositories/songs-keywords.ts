@@ -1,20 +1,8 @@
 import { Knex } from 'knex';
-import { BaseRepository, Options, type IBaseRepository } from './base-repository';
 
 import { SongKeyword } from '../models';
-
-export type CreateSongKeyword = {
-	song_id: string;
-	keyword_id: string;
-};
-export type CreateSongsKeyword = {
-	song_id: string;
-	keywords_ids: string[];
-};
-export type UpdateSongKeyword = {
-	song_id: string;
-	keywords_ids: string[];
-};
+import { BaseRepository, type IBaseRepository } from './base-repository';
+import { CreateSongKeyword, CreateSongsKeyword, Options, UpdateSongKeyword } from './types';
 
 export interface ISongKeywordRepository extends IBaseRepository {
 	deleteSongKeyword(id: string): Promise<SongKeyword>;

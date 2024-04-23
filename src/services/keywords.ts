@@ -1,33 +1,24 @@
 import { Keyword } from '../models';
-import { IKeywordRepository, ISongKeywordRepository } from '../repositories';
-import { APIError } from '../repositories/base-repository';
-
-export type CreateKeyword = Pick<Keyword, 'name'>;
-export type UpdateKeyword = {
-	id: string;
-	name: string;
-};
-export type KeywordResponse = Keyword;
-export type KeywordsRepositories = {
-	keyword: IKeywordRepository;
-	songs_keyword: ISongKeywordRepository;
-};
-export type KeywordFindAllParams = {
-	name: string;
-};
+import {
+	APIError,
+	CreateKeyword,
+	KeywordListAllParams,
+	KeywordResponse,
+	KeywordsRepositories
+} from '../repositories/types';
 
 export interface IKeywordService {
 	create(name: string): Promise<Keyword | APIError>;
 	listBySong(song_id: string): Promise<Keyword[]>;
 	delete(id: string): Promise<Keyword | APIError>;
-	list(filters: KeywordFindAllParams): Promise<Keyword[]>;
+	list(filters: KeywordListAllParams): Promise<Keyword[]>;
 	update(name: string, id: string): Promise<Keyword | APIError>;
 }
 
 export class KeywordService implements IKeywordService {
 	constructor(private repositories: KeywordsRepositories) {}
 
-	async list(filters: KeywordFindAllParams): Promise<KeywordResponse[]> {
+	async list(filters: KeywordListAllParams): Promise<KeywordResponse[]> {
 		const keywords = await this.repositories.keyword.listAll(filters);
 
 		return keywords;
@@ -67,6 +58,14 @@ export class KeywordService implements IKeywordService {
 				message: 'Keyword not found'
 			};
 			return error;
+		}
+		const existing_keyword = await this.repositories.keyword.findOne({ name });
+		if (existing_keyword) {
+			return {
+				code: 409,
+				error: true,
+				message: 'Already created keyword!'
+			};
 		}
 
 		const updated = await this.repositories.keyword.updateKeyword({

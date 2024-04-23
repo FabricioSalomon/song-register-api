@@ -1,16 +1,6 @@
 import { Knex } from 'knex';
 
-export type Options = {
-	name?: string;
-	author_id?: string;
-	soft_deleted?: boolean;
-};
-
-export type APIError = {
-	code: number;
-	error: boolean;
-	message: string;
-};
+import { Options } from './types';
 
 export interface IBaseRepository {
 	destroy<Result>(id: string): Promise<Result>;

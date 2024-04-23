@@ -1,33 +1,23 @@
 import { Author } from '../models';
-import { IAuthorRepository } from '../repositories';
-import { APIError } from '../repositories/base-repository';
-
-export type CreateAuthor = Pick<Author, 'name'>;
-export type UpdateAuthor = {
-	id: string;
-	name: string;
-};
-export type AuthorResponse = Author & {
-	songs_registered: number;
-};
-export type AuthorsRepositories = {
-	author: IAuthorRepository;
-};
-export type AuthorFindAllParams = {
-	name: string;
-};
+import {
+	APIError,
+	AuthorListAllParams,
+	AuthorResponse,
+	AuthorsRepositories,
+	CreateAuthor
+} from '../repositories/types';
 
 export interface IAuthorService {
 	delete(id: string): Promise<Author | APIError>;
 	create(name: string): Promise<Author | APIError>;
-	list(filters: AuthorFindAllParams): Promise<Author[]>;
+	list(filters: AuthorListAllParams): Promise<Author[]>;
 	update(name: string, id: string): Promise<Author | APIError>;
 }
 
 export class AuthorService implements IAuthorService {
 	constructor(private repositories: AuthorsRepositories) {}
 
-	async list(filters: AuthorFindAllParams): Promise<AuthorResponse[]> {
+	async list(filters: AuthorListAllParams): Promise<AuthorResponse[]> {
 		const authors = await this.repositories.author.listAll(filters);
 
 		return authors;
@@ -58,6 +48,14 @@ export class AuthorService implements IAuthorService {
 				message: 'Author not found'
 			};
 			return error;
+		}
+		const existing_author = await this.repositories.author.findOne({ name });
+		if (existing_author) {
+			return {
+				code: 409,
+				error: true,
+				message: 'Already created author!'
+			};
 		}
 
 		const updated = await this.repositories.author.updateAuthor({

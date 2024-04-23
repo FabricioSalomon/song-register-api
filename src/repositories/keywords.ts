@@ -1,15 +1,15 @@
 import { Knex } from 'knex';
-import { BaseRepository, Options, type IBaseRepository } from './base-repository';
 
 import { Keyword } from '../models';
-import { CreateKeyword, KeywordFindAllParams, UpdateKeyword } from '../services';
+import { BaseRepository, type IBaseRepository } from './base-repository';
+import { CreateKeyword, KeywordListAllParams, Options, UpdateKeyword } from './types';
 
 export interface IKeywordRepository extends IBaseRepository {
 	deleteKeyword(id: string): Promise<Keyword>;
 	createKeyword(params?: CreateKeyword): Promise<Keyword>;
 	updateKeyword(params?: UpdateKeyword): Promise<Keyword>;
 	listAllByIds(keywords_ids: string[]): Promise<Keyword[]>;
-	listAll(filters?: KeywordFindAllParams): Promise<Keyword[]>;
+	listAll(filters?: KeywordListAllParams): Promise<Keyword[]>;
 }
 
 export class KeywordRepository extends BaseRepository implements IKeywordRepository {
@@ -18,7 +18,7 @@ export class KeywordRepository extends BaseRepository implements IKeywordReposit
 		super(db);
 	}
 
-	async listAll(filters?: KeywordFindAllParams): Promise<Keyword[]> {
+	async listAll(filters?: KeywordListAllParams): Promise<Keyword[]> {
 		return await this.table
 			.where((builder) => {
 				builder.where('deleted_at', null);
