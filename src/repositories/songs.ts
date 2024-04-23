@@ -28,7 +28,6 @@ export class SongRepository extends BaseRepository implements ISongRepository {
 			.where((builder) => {
 				builder.where('songs.deleted_at', null);
 				builder.where('authors.deleted_at', null);
-				builder.where('keywords.deleted_at', null);
 
 				if (filters?.name) {
 					builder.whereLike('songs.name', `%${filters.name}%`);
@@ -48,6 +47,7 @@ export class SongRepository extends BaseRepository implements ISongRepository {
 				}
 
 				if (filters?.keyword) {
+					builder.where('keywords.deleted_at', null);
 					builder.whereLike('keywords.name', `%${filters.keyword}%`);
 				}
 			})
