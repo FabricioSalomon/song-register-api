@@ -10,6 +10,12 @@
 yarn
 ```
 
+### Run migrations
+
+```
+yarn migration
+```
+
 ### Run API
 
 ```
