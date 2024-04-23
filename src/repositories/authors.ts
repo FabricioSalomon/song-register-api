@@ -1,14 +1,14 @@
 import { Knex } from 'knex';
-import { BaseRepository, Options, type IBaseRepository } from './base-repository';
 
 import { Author, Song } from '../models';
-import { AuthorResponse, CreateAuthor, KeywordFindAllParams, UpdateAuthor } from '../services';
+import { BaseRepository, type IBaseRepository } from './base-repository';
+import { AuthorListAllParams, AuthorResponse, CreateAuthor, Options, UpdateAuthor } from './types';
 
 export interface IAuthorRepository extends IBaseRepository {
 	deleteAuthor(id: string): Promise<Author>;
 	createAuthor(params?: CreateAuthor): Promise<Author>;
 	updateAuthor(params?: UpdateAuthor): Promise<Author>;
-	listAll(filters?: KeywordFindAllParams): Promise<AuthorResponse[]>;
+	listAll(filters?: AuthorListAllParams): Promise<AuthorResponse[]>;
 }
 
 export class AuthorRepository extends BaseRepository implements IAuthorRepository {
@@ -17,7 +17,7 @@ export class AuthorRepository extends BaseRepository implements IAuthorRepositor
 		super(db);
 	}
 
-	async listAll(filters?: KeywordFindAllParams): Promise<AuthorResponse[]> {
+	async listAll(filters?: AuthorListAllParams): Promise<AuthorResponse[]> {
 		const authors: Author[] = await this.table
 			.where((builder) => {
 				builder.where('authors.deleted_at', null);
@@ -26,13 +26,15 @@ export class AuthorRepository extends BaseRepository implements IAuthorRepositor
 					builder.whereLike('authors.name', `%${filters.name}%`);
 				}
 			})
-			.orderBy('created_at', 'desc');
+			.orderBy('created_at', 'desc')
+			.select('*');
 
 		const authors_ids = authors?.map(({ id }) => id);
 		const songs_registered: Song[] = await this.db('songs')
 			.where('songs.deleted_at', null)
 			.whereIn('author_id', authors_ids)
-			.orderBy('created_at', 'desc');
+			.orderBy('created_at', 'desc')
+			.select('*');
 
 		const songs_by_author = songs_registered?.reduce((songs_by_author, current_song) => {
 			const current = songs_by_author[current_song.author_id] ?? [];

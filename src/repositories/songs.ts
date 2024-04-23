@@ -2,15 +2,15 @@ import { Knex } from 'knex';
 import moment from 'moment';
 
 import { Song } from '../models';
-import { BaseRepository, Options, type IBaseRepository } from './base-repository';
-import { CreateSong, SongFindAllParams, SongResponse, UpdateSong } from '../services';
+import { BaseRepository, type IBaseRepository } from './base-repository';
+import { CreateSong, Options, SongListAllParams, SongResponse, UpdateSong } from './types';
 
 export interface ISongRepository extends IBaseRepository {
 	deleteSong(id: string): Promise<Song>;
 	createSong(params?: CreateSong): Promise<Song>;
 	updateSong(params?: UpdateSong): Promise<Song>;
-	listAll(filters?: SongFindAllParams): Promise<SongResponse[]>;
-	findAllByNameAndAuthor(params?: Options): Promise<SongResponse[]>;
+	listAll(filters?: SongListAllParams): Promise<SongResponse[]>;
+	findAllByNameAndAuthor(params?: Options): Promise<Song[]>;
 }
 
 export class SongRepository extends BaseRepository implements ISongRepository {
@@ -19,7 +19,7 @@ export class SongRepository extends BaseRepository implements ISongRepository {
 		super(db);
 	}
 
-	async listAll(filters?: SongFindAllParams): Promise<SongResponse[]> {
+	async listAll(filters?: SongListAllParams): Promise<SongResponse[]> {
 		return await this.table
 			.innerJoin('authors', 'authors.id', 'songs.author_id')
 			.innerJoin('songs-keywords', 'songs.id', 'songs-keywords.song_id')
